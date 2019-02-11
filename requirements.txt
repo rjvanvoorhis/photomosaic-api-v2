@@ -1,0 +1,14 @@
+boto3
+gunicorn
+Pillow
+flask
+flask-restplus
+requests
+pymongo
+pyjwt
+flask-cors
+requests_futures
+coverage
+ddt
+mock
+flask-mail

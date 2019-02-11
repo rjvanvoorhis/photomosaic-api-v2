@@ -1,0 +1,24 @@
+version: '3'
+services:
+  mosaic-api:
+    image: ryanjvanvoorhis/mosaic-api
+    build: .
+    environment:
+      - MONOGODB_URI=${MONGODB_URI}
+      - SECRET_KEY=${SECRET_KEY}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - FRONT_END_URL=http://localhost:8081
+      - FAAS_URL=${FAAS_URL}
+      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL}
+      - S3_EXTERNAL_URL=http://localhost:4572
+      - MOSAIC_URL=http://localhost:5000/api/v1/photomosaic
+    ports:
+      - "5000:5000"
+  mongodb:
+    user: root
+    image: 'bitnami/mongodb:latest'
+    ports:
+      - "27018:27017"
+    volumes:
+      - /opt/mongodb:/bitnami
