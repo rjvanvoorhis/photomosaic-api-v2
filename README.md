@@ -13,9 +13,17 @@ git clone https://github.com/rjvanvoorhis/photomosaic-api.git
 Set these Environmental Variables
 
 ```bash
-export REDIS_HOST=redis
+export FAAS_URL='http://faas-swarm:8080'
 export MONGODB_URI=mongodb://mongodb:27017/
 export SECRET_KEY={my_super_secret_key}
+export MOSAIC_API_URL='http://mosaic-api:5000/api/v1/photomosaic'
+export MAIL_USERNAME={an email account}
+export MAIL_PASSWORD={email password}
+export AWS_SECRET_ACCESS_KEY={value}
+export AWS_ACCESS_KEY_ID={value}
+export S3_ENDPOINT_URL='http://localstack-s3:4572/'
+export S3_EXTERNAL_URL='http://localhost:4572/'
+export MEDIA_BUCKET='images'
 ```
 
 run 
