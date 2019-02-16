@@ -10,7 +10,6 @@ from uuid import uuid4
 
 
 class GridFsAccessor(object):
-    # MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://mongodb:27017/')
     MONGODB_URI = Environment().mongodb_uri if Environment().mongodb_uri else 'mongodb://mongodb:27017/'
 
     def __init__(self, db=None, logger=None):

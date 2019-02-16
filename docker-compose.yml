@@ -4,7 +4,7 @@ services:
     image: ryanjvanvoorhis/mosaic-api
     build: .
     environment:
-      - MONOGODB_URI=${MONGODB_URI}
+      - MONOGODB_URI=mongodb://mongodb:27017/
       - SECRET_KEY=${SECRET_KEY}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       - MAIL_USERNAME=${MAIL_USERNAME}

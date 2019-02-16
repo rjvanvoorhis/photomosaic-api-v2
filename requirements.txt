@@ -8,7 +8,8 @@ pymongo
 pyjwt
 flask-cors
 requests_futures
+
 coverage
 ddt
 mock
-flask-mail
+freezegun

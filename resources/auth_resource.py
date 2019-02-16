@@ -8,6 +8,7 @@ import functools
 from flask import request
 from jwt.exceptions import DecodeError
 
+
 class AuthorizationError(Exception):
     pass
 

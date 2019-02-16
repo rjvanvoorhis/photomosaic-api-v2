@@ -7,7 +7,8 @@ import os
 DEFAULT_THUMBNAIL_SIZE = 300
 
 
-def make_file_path(extension='jpg'):
+def make_file_path(extension=None):
+    extension = extension if extension is not None else 'jpg'
     return f'{str(time.time()).replace(".", "")}.{extension}'
 
 
