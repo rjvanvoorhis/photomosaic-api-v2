@@ -19,13 +19,10 @@ class ImageServer(object):
 
     @staticmethod
     def serve_from_s3(file_id, bucket_name=None):
-        try:
-            bucket_name = bucket_name if bucket_name else Environment().media_bucket
-            img = S3Accessor().get(file_id, bucket_name=bucket_name)
-            resp = make_response(img.read())
-            resp.content_type = img.mimetype
-        except Exception as ex:
-            resp = str(ex)
+        bucket_name = bucket_name if bucket_name else Environment().media_bucket
+        img = S3Accessor().get(file_id, bucket_name=bucket_name)
+        resp = make_response(img.read())
+        resp.content_type = img.mimetype
         return resp
 
     @staticmethod
