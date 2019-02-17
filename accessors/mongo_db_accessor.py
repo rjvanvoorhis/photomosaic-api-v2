@@ -12,7 +12,9 @@ class Paginator(object):
 
     def build_results(self, query=None, projection=None, unwind=None, skip=0, limit=None, sort=None):
         match_step = {'$match': query} if query is not None else {'$match': {}}
-        sort_step = {'$sort': sort} if sort is not None else {'$sort': {'_id': 1}}
+        sort = {'_id': 1} if not sort else {'_id': 1, **sort} # always include _id in sort to ensure unique order
+        sort_step = {'$sort': sort}
+        # sort_step = {'$sort': sort} if sort is not None else {'$sort': {'_id': 1}}
         aggr = [match_step, sort_step]
         if unwind:
             aggr.append({'$unwind': unwind})
@@ -34,21 +36,29 @@ class Paginator(object):
 
     def build_cursor(self, query=None, projection=None, unwind=None, skip=0, limit=None, sort=None):
         query = query if query else {}
-        total = self.get_count(query, unwind)
+        total = self.get_count(query=query, unwind=unwind)
         cursor = {
             'total': total,
-            'results': self.build_results(query, projection, unwind, skip, limit, sort),
+            'results': self.build_results(
+                query=query,
+                projection=projection,
+                unwind=unwind,
+                skip=skip,
+                limit=limit,
+                sort=sort
+            ),
         }
         return cursor
 
 
 class MongoDbAccessor(object):
-    MONGODB_URI = Environment().mongodb_uri
+    # MONGODB_URI = Environment().mongodb_uri
     PROJECTION = {'_id': 0}
 
     def __init__(self, collection_name):
         self.logger = logging.getLogger(__name__)
-        self.client = MongoClient(self.MONGODB_URI if self.MONGODB_URI else 'mongodb://mongodb:27017/')
+        # self.client = MongoClient(self.MONGODB_URI if self.MONGODB_URI else 'mongodb://mongodb:27017/')
+        self.client = MongoClient(Environment().mongodb_uri)
         self.db = self.client.photomosaic
         self.collection = self.db[collection_name]
         self.collection_name = collection_name
@@ -59,17 +69,19 @@ class MongoDbAccessor(object):
 
     def find_one(self, query=None, projection=None, **kwargs):
         projection = projection if projection else self.PROJECTION
+        if '_id' not in projection:
+            projection['_id'] = 0
         self.logger.debug(f'Retrieving document from {self.collection_name} with query: {query}')
         doc = self.collection.find_one(query, projection, **kwargs)
         return doc if doc else {}
 
     def update_one(self, query, update, **kwargs):
-        self.logger.debug(f'Updating document from {self.collection_name} with query: {query}, with update: {update}')
-        self.collection.update_one(query, update, **kwargs)
+        self.logger.debug(f'Updating document from {self.collection_name} with query: {query} and update: {update}')
+        return self.collection.update_one(query, update, **kwargs)
 
     def replace_one(self, query, replacement, **kwargs):
-        self.logger.debug(f'Replacing document from {self.collection_name} with query: {query} with: {replacement}')
-        self.collection.replace_one(query, replacement, **kwargs)
+        self.logger.debug(f'Replacing document from {self.collection_name} with query: {query} and replacement: {replacement}')
+        return self.collection.replace_one(query, replacement, **kwargs)
 
     def get_paginated_results(self, query, projection=None, unwind=None, skip=None, limit=None, sort=None):
         return self.paginator.build_cursor(query, projection, unwind, skip, limit, sort)
