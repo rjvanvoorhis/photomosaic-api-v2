@@ -10,10 +10,14 @@ from uuid import uuid4
 
 
 class GridFsAccessor(object):
-    MONGODB_URI = Environment().mongodb_uri if Environment().mongodb_uri else 'mongodb://mongodb:27017/'
+    # MONGODB_URI = Environment().mongodb_uri if Environment().mongodb_uri else 'mongodb://mongodb:27017/'
 
     def __init__(self, db=None, logger=None):
-        db = db if db is not None else MongoClient(self.MONGODB_URI).photomosaic
+        # Configure defaults
+        self.uri = Environment().mongodb_uri if Environment().mongodb_uri else 'mongodb://mongodb:27017/'
+        db = db if db is not None else MongoClient(self.uri).photomosaic
+
+        #  initialize
         self.logger = logger if logger is not None else logging.getLogger(__name__)
         self.db = db
         self.fs = gridfs.GridFS(self.db)
