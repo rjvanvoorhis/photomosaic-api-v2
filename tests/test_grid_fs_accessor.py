@@ -21,9 +21,8 @@ class TestGridFsAccessor(BaseTest):
         self.mock_uuid.return_value = 'mock_id'
 
     @data(
-        (None, 'default_db', None, 'mongodb://mongodb:27017/'),
-        ('custom', 'custom', None, 'mongodb://mongodb:27017/'),
         ('custom', 'custom', 'mongodb://custom:27017/', 'mongodb://custom:27017/'),
+        (None, 'default_db', 'mongodb://custom:27017/', 'mongodb://custom:27017/'),
     )
     @unpack
     def test_init(self, db, exp_db, uri, exp_uri):

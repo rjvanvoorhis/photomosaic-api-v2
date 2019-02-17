@@ -23,7 +23,6 @@ def set_password(password):
 
 
 class UserAccessor(MongoDbAccessor):
-    API_PREFIX = env.mosaic_url if env.mosaic_url else 'http://localhost:5000/api/v1/photomosaic'
 
     def __init__(self):
         super().__init__('users')

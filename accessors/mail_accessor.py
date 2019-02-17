@@ -2,26 +2,30 @@ __all__ = ['MailAccessor']
 
 from email.message import Message
 import smtplib
-import config
+from helpers import Environment
+# import config
 
 
 class MailAccessor(object):
     def __init__(self):
         self.server = smtplib.SMTP_SSL(
-            config.EMAIL_SERVER,
-            config.MAIL_PORT
+            Environment().email_server,
+            Environment().mail_port
         )
-        self.server.login(config.MAIL_USERNAME, config.MAIL_PASSWORD)
+        self.server.login(
+            Environment().mail_username,
+            Environment().mail_password
+        )
 
     def send_mail(self, recipient, payload, subject=None):
         msg = Message()
         msg['Subject'] = subject
-        msg['From'] = config.MAIL_USERNAME
+        msg['From'] = Environment().mail_username
         msg['To'] = recipient
         msg.add_header('Content-Type', 'text/html')
         msg.set_payload(payload)
         self.server.sendmail(
-            config.MAIL_USERNAME,
+            Environment().mail_username,
             recipient,
             msg.as_string()
         )
