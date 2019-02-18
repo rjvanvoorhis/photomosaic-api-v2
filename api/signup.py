@@ -9,6 +9,23 @@ from documentation.namespaces import base_ns
 from documentation.models import login_model, registration_model
 
 
+@base_ns.route('/validate')
+class ValidateUser(BaseResource):
+    def __init__(self, api=None):
+        super().__init__(api=api)
+        self.resource = AuthResource()
+
+    @base_ns.expect(login_model)
+    def post(self):
+        payload = base_ns.payload
+        try:
+            header = self.resource.validate_user(**payload)
+        except AuthorizationError as e:
+            self.logger.exception(str(e))
+            return {'message': str(e)}, 401
+        return header
+
+
 @base_ns.route('/login')
 class Login(BaseResource):
 
