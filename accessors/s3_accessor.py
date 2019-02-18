@@ -75,5 +75,5 @@ class S3Accessor(object):
             self.client.head_bucket(Bucket=self.env.media_bucket)
             is_alive = True
         except Exception as e:
-            self.logger.exception(e)
+            self.logger.exception(str(e))
         return is_alive
