@@ -1,16 +1,13 @@
 __all__ = ['UserAccessor']
 
 from accessors.mongo_db_accessor import MongoDbAccessor
-# from accessors.grid_fs_accessor import GridFsAccessor
 from accessors.s3_accessor import S3Accessor
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 from uuid import uuid4
-# import os
 import time
 from helpers import Environment
 DEFAULT_TIMEOUT = 1600
-env = Environment()
 
 
 class UserException(Exception):
@@ -61,14 +58,6 @@ class UserAccessor(MongoDbAccessor):
         results = self.collection.find_one(query, projection)
         return results.get(field, [])
 
-    def get_list_item(self, username, field, field_id):
-        items = self.get_list(username, field)
-        default = {}
-        for item in items:
-            if item.get(field) == field_id:
-                return item
-        return default
-
     def insert_list_item(self, username, field_name, item):
         query = {'username': username}
         to_update = {'$push': {
@@ -99,7 +88,8 @@ class UserAccessor(MongoDbAccessor):
             alternate_id, thumbnail_alternate_id = (img_id, thumbnail_id)
         else:
             gif_filename = secure_filename(f'{str(uuid4())}.gif') if gif_filename is None else gif_filename
-            alternate_id, thumbnail_alternate_id = self.s3_accessor.insert_image_and_thumbnail(gif_data, gif_filename)
+            alternate_id, thumbnail_alternate_id = self.s3_accessor.insert_image_and_thumbnail(
+                gif_data, filename=gif_filename)
         gallery_item = {
             'username': username,
             'gallery_id': str(uuid4()),
@@ -210,7 +200,7 @@ class UserAccessor(MongoDbAccessor):
         gallery_item = self.get_gallery_item(gallery_id, username)
         if gallery_item:
             for file_id in list(set(gallery_item.get('file_ids', []))):
-                self.s3_accessor.delete_object(file_id, Environment().media_bucket)
+                self.s3_accessor.delete_object(file_id, self.env.media_bucket)
         self.delete_one_element(query, 'gallery', {'gallery_id': gallery_id})
 
     def delete_upload_item(self, file_id, username=None):
@@ -218,5 +208,5 @@ class UserAccessor(MongoDbAccessor):
         upload_item = self.get_upload_item(file_id, username)
         if upload_item:
             for _id in [upload_item.get(k, '') for k in ['file_id', 'thumbnail_id']]:
-                self.s3_accessor.delete_object(_id, Environment().media_bucket)
+                self.s3_accessor.delete_object(_id, self.env.media_bucket)
         self.delete_one_element(query, 'uploads', {'file_id': file_id})
