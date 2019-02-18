@@ -213,10 +213,11 @@ class UserAccessor(MongoDbAccessor):
 
     def delete_user(self, username):
         user = self.find_one({'username': username})
-        for gallery_item in user.get('gallery'):
-            for file_id in list(set(gallery_item.get('file_ids', []))):
-                self.s3_accessor.delete_object(file_id, self.env.media_bucket)
-        for upload_item in user.get('uploads'):
-            for _id in [upload_item.get(k, '') for k in ['file_id', 'thumbnail_id']]:
-                self.s3_accessor.delete_object(_id, self.env.media_bucket)
-        self.collection.delete_one({'username': username})
+        if user:
+            for gallery_item in user.get('gallery'):
+                for file_id in list(set(gallery_item.get('file_ids', []))):
+                    self.s3_accessor.delete_object(file_id, self.env.media_bucket)
+            for upload_item in user.get('uploads'):
+                for _id in [upload_item.get(k, '') for k in ['file_id', 'thumbnail_id']]:
+                    self.s3_accessor.delete_object(_id, self.env.media_bucket)
+            self.collection.delete_one({'username': username})
