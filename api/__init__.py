@@ -2,7 +2,7 @@ from flask_restplus import Api
 from documentation.models import authorizations
 from documentation.namespaces import base_ns
 from documentation.namespaces import user_ns
-from . import gallery, messages, signup, system, uploads
+from . import gallery, messages, signup, system, uploads, users
 
 
 api = Api(title='Photomosaic API',

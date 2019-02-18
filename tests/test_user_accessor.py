@@ -260,6 +260,16 @@ class UserAccessorTest(BaseTest):
         )
         self.assertEqual(accessor.s3_accessor.delete_object.call_count, 2)
 
+    @patch.object(user_accessor.UserAccessor, 'find_one')
+    def test_delete_user(self, mock_find):
+        mock_find.return_value = {
+            'gallery': [{'file_ids': [1, 2, 3]}, {'file_ids': [4, 5]}],
+            'uploads': [{'file_id': 6, 'thumbnail_id': 7}]
+        }
+        accessor = user_accessor.UserAccessor()
+        accessor.delete_user('username')
+        mock_find.assert_called_once_with({'username': 'username'})
+        self.assertEqual(accessor.s3_accessor.delete_object.call_count, 7)
 
 if __name__ == '__main__':
     unittest.main()
