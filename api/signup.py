@@ -37,6 +37,8 @@ class Login(BaseResource):
     def post(self):
         payload = base_ns.payload
         try:
+            if not self.resource.is_validated(payload.get('username')):
+                raise AuthorizationError('User not validated')
             header = self.resource.get_auth(**payload)
         except AuthorizationError as e:
             self.logger.exception(str(e))
