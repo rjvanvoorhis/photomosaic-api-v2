@@ -1,8 +1,12 @@
 version: '3'
 services:
+  mock-mosaic-maker:
+    image: ryanjvanvoorhis/mock-mosaic-maker
+    ports:
+      - "5080:5080"
+
   mosaic-api:
     image: ryanjvanvoorhis/mosaic-api
-    build: .
     environment:
       - MONOGODB_URI=mongodb://mongodb:27017/
       - SECRET_KEY=${SECRET_KEY}
@@ -12,9 +16,22 @@ services:
       - FAAS_URL=${FAAS_URL}
       - S3_ENDPOINT_URL=${S3_ENDPOINT_URL}
       - S3_EXTERNAL_URL=http://localhost:4572
-      - MOSAIC_URL=http://localhost:5000/api/v1/photomosaic
+      - MOSAIC_API_URL_INTERNAL=http://mosaic-api:5000/api/v1/photomosaic
+      - MOSAIC_API_URL_EXTERNAL=http://${BROADCAST_IP}:5000/api/v1/photomosaic
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     ports:
       - "5000:5000"
+
+  localstack-s3:
+    image: localstack/localstack
+    environment:
+      - DATA_DIR=/tmp/localstack/data
+      - SERVICES=s3:4572
+      - DEFAULT_REGION=us-east-1
+    ports:
+      - "4572:4572"
   mongodb:
     user: root
     image: 'bitnami/mongodb:latest'
