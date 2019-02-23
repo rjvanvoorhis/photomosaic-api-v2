@@ -47,13 +47,15 @@ class AuthResource(object):
             'username': username,
             'roles': self.get_roles(username),
             'validated': self.is_validated(username),
-            'expire_at': time.time() + (30 * 60)
+            'expire_at': time.time() + (60 * 60)
         }
         token = jwt.encode(payload, self.secret)
         return self.bytes_to_bearer(token)
 
     def verify_token(self, token, username, allowed_roles):
         allowed_roles = allowed_roles if allowed_roles else ['ADMIN']
+        if isinstance(allowed_roles, str):
+            allowed_roles = [allowed_roles]
         if 'ADMIN' not in allowed_roles:
             allowed_roles.append('ADMIN')  # ADMIN should always override
         try:

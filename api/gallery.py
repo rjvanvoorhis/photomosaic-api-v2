@@ -3,14 +3,17 @@ from resources import BaseResource
 from accessors import UserAccessor
 from documentation.namespaces import user_ns
 from documentation.models import paging_parser, gallery_parser
+from resources.auth_resource import requires_auth
 
 
+@user_ns.doc(security='apiKey')
 @user_ns.route('/gallery')
 class UserGallery(BaseResource):
     def __init__(self, api=None):
         super().__init__(api=api)
         self.accessor = UserAccessor()
 
+    @requires_auth(allowed_roles='USER')
     @user_ns.expect(paging_parser)
     def get(self, username):
         args = paging_parser.parse_args()
@@ -39,16 +42,19 @@ class UserGallery(BaseResource):
         return result
 
 
+@user_ns.doc(security='apiKey')
 @user_ns.route('/gallery/<string:gallery_id>')
 class UserGalleryItem(BaseResource):
     def __init__(self, api=None):
         super().__init__(api=api)
         self.accessor = UserAccessor()
 
+    @requires_auth(allowed_roles='USER')
     def get(self, username, gallery_id):
         gallery_item = self.accessor.get_gallery_item(gallery_id, username=username)
         return gallery_item
 
+    @requires_auth(allowed_roles='USER')
     def delete(self, username, gallery_id):
         self.accessor.delete_gallery_item(gallery_id, username)
         return {'message': f'{gallery_id} deleted from  {username}'}

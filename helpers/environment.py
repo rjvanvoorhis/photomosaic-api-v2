@@ -14,6 +14,7 @@ class Environment(object):
             'cors_headers': 'Content-Type',
             'media_bucket': 'images',
             'mongodb_uri': 'mongodb://mongodb:27017/',
+            'exclude_emails': ['photomosaic.api@gmail.com']
 
         }
 
