@@ -1,5 +1,7 @@
 version: '3'
 services:
+
+  ### Replace Open_FaaS when running outside of swarm mode
   mock-mosaic-maker:
     image: ryanjvanvoorhis/mock-mosaic-maker
     ports:
@@ -13,9 +15,9 @@ services:
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - FRONT_END_URL=http://localhost:8081
-      - FAAS_URL=${FAAS_URL}
-      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL}
-      - S3_EXTERNAL_URL=http://localhost:4572
+      - FAAS_URL=http://mock-mosaic-maker:5080
+      - S3_ENDPOINT_URL=http://local-s3:80/
+      - S3_EXTERNAL_URL=http://localhost:80
       - MOSAIC_API_URL_INTERNAL=http://mosaic-api:5000/api/v1/photomosaic
       - MOSAIC_API_URL_EXTERNAL=http://${BROADCAST_IP}:5000/api/v1/photomosaic
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
@@ -24,14 +26,17 @@ services:
     ports:
       - "5000:5000"
 
-  localstack-s3:
-    image: localstack/localstack
-    environment:
-      - DATA_DIR=/tmp/localstack/data
-      - SERVICES=s3:4572
-      - DEFAULT_REGION=us-east-1
+### DATA ###
+  local-s3:
+    user: root
+    image: andrewgaul/s3proxy
     ports:
-      - "4572:4572"
+      - "80:80"
+    environment:
+      - S3PROXY_AUTHORIZATION=none
+    volumes:
+      - /opt/local_s3:/data
+
   mongodb:
     user: root
     image: 'bitnami/mongodb:latest'
