@@ -8,6 +8,7 @@ services:
       - "5080:5080"
 
   mosaic-api:
+    build: .
     image: ryanjvanvoorhis/mosaic-api
     environment:
       - MONOGODB_URI=mongodb://mongodb:27017/
