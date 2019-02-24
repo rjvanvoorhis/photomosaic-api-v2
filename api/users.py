@@ -4,6 +4,7 @@ from accessors.user_accessor import UserAccessor
 from resources.auth_resource import requires_auth
 
 
+@user_ns.doc(security='apiKey')
 @user_ns.route('')
 class UsersResource(BaseResource):
     def __init__(self, api=None):
