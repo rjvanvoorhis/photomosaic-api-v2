@@ -94,10 +94,10 @@ class UserAccessor(MongoDbAccessor):
             'username': username,
             'gallery_id': str(uuid4()),
             'file_ids': [img_id, thumbnail_id, alternate_id, thumbnail_alternate_id],
-            'mosaic_url': f'{self.env.s3_external_url}/images/{img_id}',
-            'alternate_url': f'{self.env.s3_external_url}/images/{alternate_id}',
-            'thumbnail_url': f'{self.env.s3_external_url}/images/{thumbnail_id}',
-            'alternate_thumbnail_url': f'{self.env.s3_external_url}/images/{thumbnail_alternate_id}',
+            'mosaic_url': f'{self.env.s3_external_url}/{self.env.media_bucket}/{img_id}',
+            'alternate_url': f'{self.env.s3_external_url}/{self.env.media_bucket}/{alternate_id}',
+            'thumbnail_url': f'{self.env.s3_external_url}/{self.env.media_bucket}/{thumbnail_id}',
+            'alternate_thumbnail_url': f'{self.env.s3_external_url}/{self.env.media_bucket}/{thumbnail_alternate_id}',
             'toggle_on': True,
         }
         self.insert_list_item(username, 'gallery', gallery_item)

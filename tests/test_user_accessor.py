@@ -271,5 +271,6 @@ class UserAccessorTest(BaseTest):
         mock_find.assert_called_once_with({'username': 'username'})
         self.assertEqual(accessor.s3_accessor.delete_object.call_count, 7)
 
+
 if __name__ == '__main__':
     unittest.main()

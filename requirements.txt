@@ -4,7 +4,7 @@ Pillow
 flask
 flask-restplus
 requests
-pymongo
+pymongo[tls,srv]
 pyjwt
 flask-cors
 requests_futures

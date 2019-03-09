@@ -14,7 +14,11 @@ class Environment(object):
             'cors_headers': 'Content-Type',
             'media_bucket': 'images',
             'mongodb_uri': 'mongodb://mongodb:27017/',
-            'exclude_emails': ['photomosaic.api@gmail.com']
+            'exclude_emails': [
+                'photomosaic.api@gmail.com',
+                'photomosaic.user.api@gmail.com',
+                'photomosaic.admin.api@gmail.com'
+            ]
 
         }
 
