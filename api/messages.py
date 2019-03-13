@@ -3,12 +3,13 @@ from flask import request
 from requests_futures.sessions import FuturesSession
 from resources import BaseResource
 from helpers import Environment
-from accessors import UserAccessor
+from accessors import UserAccessor, GridFsAccessor
 from helpers.file_transfers import encode_image_data
 from helpers.image_server import ImageServer
 
 from documentation.namespaces import user_ns
 from documentation.models import message_model, pending_model_update
+from documentation.models import pending_parser
 from resources.auth_resource import requires_auth
 
 session = FuturesSession()
@@ -66,7 +67,8 @@ class UserPending(BaseResource):
         item = self.accessor.get_pending_frame(username)
         frame = item.get('frame')
         if frame:
-            resp = ImageServer.serve_from_string(frame.get('image_data', ''), frame.get('mimetype', 'image/gif'))
+            resp = ImageServer.serve_from_mongodb(frame)
+            # resp = ImageServer.serve_from_string(frame.get('image_data', ''), frame.get('mimetype', 'image/gif'))
         else:
             resp = ImageServer.serve_from_s3(item.get('file_id', ''))
         return resp
@@ -78,17 +80,24 @@ class UserPendingJson(BaseResource):
     def __init__(self, api=None):
         super().__init__(api=api)
         self.accessor = UserAccessor()
+        self.grid_fs_accessor = GridFsAccessor(db=self.accessor.db)
 
-    @user_ns.expect(pending_model_update)
+    @user_ns.expect(pending_parser)
     def patch(self, username):
-        payload = json.loads(request.data.decode('utf-8'))
-        payload = payload if payload is not None else {}
+        payload = pending_parser.parse_args()
+        if 'frame' not in payload:
+            return {'Message': 'Failure, a file is required'}, 400
+        frame = payload.get('frame')
+        frame_id = self.grid_fs_accessor.put(frame, mimetype=frame.content_type)
+
+        # payload = json.loads(request.data.decode('utf-8'))
+        # payload = payload if payload is not None else {}
         query = {'username': username}
         self.accessor.update_one(query, {
             '$set': {
                 'messages.0.progress': payload.get('progress', 0),
                 'messages.0.total_frames': payload.get('total_frames', 1)},
-            '$push': {'messages.0.frames': {'$each': [payload.get('frame', {})], '$position': 0}}
+            '$push': {'messages.0.frames': {'$each': [frame_id], '$position': 0}}
         })
         return {'message': 'Success'}, 200
 

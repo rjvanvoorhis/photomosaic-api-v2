@@ -2,6 +2,7 @@ __all__ = ['UserAccessor']
 
 from accessors.mongo_db_accessor import MongoDbAccessor
 from accessors.s3_accessor import S3Accessor
+from accessors import GridFsAccessor
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 from uuid import uuid4
@@ -159,9 +160,6 @@ class UserAccessor(MongoDbAccessor):
             {'$project': {
                 'message.file_id': 1,
                 '_id': 0,
-                # 'message.message_id': 1,
-                # 'message.progress': 1,
-                # 'message.expire_at': 1,
                 'message.frame': {'$arrayElemAt': ['$message.frames', 0]}
             }}
         ]
@@ -169,8 +167,29 @@ class UserAccessor(MongoDbAccessor):
         message = message[0] if message else {}
         return message.get('message', {})
 
+    def get_all_frames(self, username):
+        pipeline = [
+            {'$match': {'username': username}},
+            {'$project': {'message': {'$arrayElemAt': ['$messages', 0]}}},
+            {'$project': {
+                'message.file_id': 1,
+                '_id': 0,
+                'message.frames': 1
+            }}
+        ]
+        message = self.aggregate(pipeline)
+        message = message[0] if message else {}
+        return message.get('message', {})
+
+    def delete_frames(self, username):
+        frames = self.get_all_frames(username)
+        grid_fs = GridFsAccessor(db=self.db)
+        for file_id in frames:
+            grid_fs.delete(file_id)
+
     def complete_job(self, username):
         query = {'username': username}
+        self.delete_frames(username)
         self.update_one(
             query,
             {'$set': {
