@@ -18,6 +18,7 @@ class UserAccessorTest(BaseTest):
         self.mock_env.mongodb_uri = 'mock_uri'
         self.mock_env.media_bucket = 'media_bucket'
         self.mock_paginator = self.add_patcher('Paginator', 'accessors.mongo_db_accessor')
+        self.mock_gridfs = self.add_patcher('GridFsAccessor').return_value
         self.add_freeze('2012-04-14 10:00:01')
         self.mock_id = self.add_patcher('uuid4')
 
@@ -194,7 +195,12 @@ class UserAccessorTest(BaseTest):
         self.assertEqual(res, 'value')
 
     def test_complete_job(self):
+        exp_frame_pipeline = [
+            {'$match': {'username': 'username'}},
+            {'$project': {'message': {'$arrayElemAt': ['$messages', 0]}}},
+            {'$project': {'message.file_id': 1, '_id': 0, 'message.frames': 1}}]
         accessor = user_accessor.UserAccessor()
+        accessor.collection.aggregate.return_value = [{'message': ['id1', 'id2']}]
         accessor.complete_job('username')
         to_update = {'$set': {
             'messages.0.progress': 1.0,
@@ -202,6 +208,8 @@ class UserAccessorTest(BaseTest):
             '$push': {'messages.0.frames': {'$each': [], '$slice': -1}}}
         collection = self.get_collection()
         collection.update_one.assert_called_with({'username': 'username'}, to_update)
+        collection.aggregate.assert_called_once_with(exp_frame_pipeline)
+        self.assertEqual(self.mock_gridfs.delete.call_count, 2)
 
     def test_validate_user(self):
         accessor = user_accessor.UserAccessor()

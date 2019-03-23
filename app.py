@@ -7,8 +7,6 @@ def initialize_app():
     application = Flask(__name__)
     application.config.from_pyfile('config/config.py', silent=False)
     api.init_app(application)
-    # application.config.from_pyfile('config/config.py', silent=False)
-    # application.config['CORS_HEADERS'] = 'Content-Type'
     CORS(application, resorces={r'/api/*': {"origins": '*'}})
     return application
 
