@@ -29,6 +29,11 @@ class AuthResource(object):
         header_str = header.get('Authorization', '')
         return header_str[7:].encode()
 
+    def add_role(self, username, role):
+        roles = self.get_roles(username)
+        if role not in roles:
+            self.accessor.insert_list_item(username, 'roles', role)
+
     def get_roles(self, username):
         return self.accessor.get_list(username, 'roles')
 

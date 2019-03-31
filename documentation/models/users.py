@@ -1,6 +1,6 @@
 __all__ = [
     'metadata', 'comment_model', 'gallery_item', 'upload_img', 'post_response',
-    'message_post', 'friend_model',
+    'message_post', 'friend_model', 'add_role'
 ]
 
 from flask_restplus import fields, Model
@@ -26,6 +26,10 @@ gallery_item = Model('gallery_item', {
     'is_visible': fields.Boolean,
     'file_ids': fields.List(fields.String),
     'comments': fields.List(fields.Nested(comment_model))
+})
+
+add_role = Model('addRole', {
+    'role': fields.String
 })
 
 upload_img = Model('upload', {

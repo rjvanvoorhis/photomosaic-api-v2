@@ -1,5 +1,7 @@
 __pycache__
 .git
 .idea
+.travis.yml
+photomosaic-bdds/
 README.md
 /examples/*

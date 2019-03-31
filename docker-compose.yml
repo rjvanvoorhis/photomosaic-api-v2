@@ -8,38 +8,36 @@ services:
       - ${MOCK_MOSAIC_EXTERNAL_PORT}:5080
 
   mosaic-api:
-    image: ryanjvanvoorhis/mosaic-api
+    build: .
+    image: ryanjvanvoorhis/mosaic-api:${BUILD_TIME}
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/
-      - SECRET_KEY=${SECRET_KEY}
-      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - MONGODB_URI=${MONGODB_URI}
+      - SECRET_KEY=${MONGODB_URI}
+      # - AWS_SESSION_TOKEN=${}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - S3_ENDPOINT_URL=${S3_ENDPOINT_URL}
       - S3_EXTERNAL_URL=${S3_EXTERNAL_URL}
       - MOSAIC_API_URL_INTERNAL=${MOSAIC_API_URL_INTERNAL}
-      - MOSAIC_API_URL_EXTERNAL=http://${BROADCAST_IP}:${MOSAIC_API_PORT}/api/v1/photomosaic
-      - FRONT_END_URL=http://${BROADCAST_IP}:${FE_PORT}
-      - FAAS_URL=http://${PHOTOMOSAIC_DOMAIN}:${PHOTOMOSAIC_PORT}
+      - MOSAIC_API_URL_EXTERNAL=${MOSAIC_API_URL_EXTERNAL}
+      - FRONT_END_URL=${FRONT_END_URL}
+      - FAAS_URL=${FAAS_URL}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - ENVIRONMENT=test
     ports:
       - ${MOSAIC_API_PORT}:5000
 
   local-s3:
-    user: root
+    # user: root
     image: andrewgaul/s3proxy
     ports:
       - ${S3_PORT}:80
     environment:
       - S3PROXY_AUTHORIZATION=none
-    volumes:
-      - ${S3_DATA_DIRECTORY}:/data
 
   mongodb:
     user: root
-    image: bitnami/mongodb:latest
+    image: bitnami/mongodb
     ports:
       - ${MONGODB_PORT}:27017
-    volumes:
-      - ${MONGODB_DATA_DIRECTORY}:/bitnami
