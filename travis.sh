@@ -176,4 +176,5 @@ function travis_build() {
     else
         echo "Unittests have failed. Skipping build and Integration Tests"
     fi
+    docker ps
 }
