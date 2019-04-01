@@ -4,6 +4,7 @@ function set_home() {
     export MOSAIC_API_PROJECT=photomosaic-api-v2
     export MOSAIC_MAKER_PROJECT=mock-mosaic-maker
     export TEST_PROJECT=photomosaic-bdds
+    export DOCKER_IMAGE=ryanjvanvoorhis/mosaic-api
 }
 
 function go_home() {
@@ -161,6 +162,15 @@ function load_base_data() {
     fi
 }
 
+function push_image() {
+    echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+    docker tag ${DOCKER_IMAGE}:${BUILD_TIME} ${DOCKER_IMAGE}:latest
+    docker push ${DOCKER_IMAGE}:${BUILD_TIME}
+    docker push ${DOCKER_IMAGE}:latest
+    docker image ls
+    docker logout
+}
+
 function travis_build() {
     setup_local
     get_dependencies
@@ -171,10 +181,12 @@ function travis_build() {
         launch_stack
 	run_bdds
 	if [[ ${BDD_STATUS} != 0 ]]; then
-           echo "Unittests passed but Integration Tests have failed"
+            echo "Unittests passed but Integration Tests have failed"
+	else
+            echo "Success! All tests passed; pushing image"
+            push_image
 	fi
     else
         echo "Unittests have failed. Skipping build and Integration Tests"
     fi
-    docker ps
 }
