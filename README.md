@@ -1,5 +1,5 @@
-# Photomosaic API
-[![Build Status](https://api.travis-ci.org/rjvanvoorhis/photomosaic-api-v2.svg?branch=master)](https://travis-ci.org/rjvanvoorhis/photomosaic-api-v2)
+# Photomosaic API [![Build Status](https://api.travis-ci.org/rjvanvoorhis/photomosaic-api-v2.svg?branch=master)](https://travis-ci.org/rjvanvoorhis/photomosaic-api-v2)
+
 An API for turning gifs and images into photomosaics
 
 ## Installation
